@@ -4,8 +4,9 @@ namespace App\Imports;
 
 use App\Models\DataImages;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithHeadingRow; // Tambahkan ini
 
-class DataImagesImport implements ToModel
+class DataImagesImport implements ToModel, WithHeadingRow
 {
     /**
      * @param array $row
@@ -14,11 +15,21 @@ class DataImagesImport implements ToModel
      */
     public function model(array $row)
     {
+
+        // Cek apakah ID sudah ada di database
+        $exists = DataImages::where('id', $row['id'])->exists();
+
+        if ($exists) {
+            // Jika ada, kembalikan null (data akan dilewati/tidak di-insert)
+            return null;
+        }
+
         return new DataImages([
-            'id' => $row[0], // Sesuaikan dengan kolom Excel kamu
-            'subdomain' => $row[1],
-            'nama' => $row[2],
-            'created_at' => $row[3],
+            // Sesuaikan dengan nama header di Excel
+            'id' => $row['id'],
+            'subdomain' => $row['subdomain'],
+            'nama' => $row['nama'],
+            'created_at' => $row['created_at'],
         ]);
     }
 }

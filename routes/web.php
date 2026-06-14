@@ -21,7 +21,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('kriteria', KriteriaController::class);
     Route::resource('data-news', DataNewsController::class);
     Route::resource('data-pages', DataPagesController::class);
-    Route::post('data-images/import', [DataImagesController::class, 'import'])->name('data-images.import');
+    Route::get('data-images/import', [DataImagesController::class, 'import'])->name('data-images.import');
+    Route::post('data-images/import-process', [DataImagesController::class, 'importProcess'])->name('data-images.import-process');
     Route::resource('data-images', DataImagesController::class);
     Route::resource('data-parts', DataPartsController::class);
     Route::resource('data-logs', DataLogsController::class);

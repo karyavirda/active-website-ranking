@@ -6,28 +6,17 @@
                 <a href="{{ route('data-images.create') }}"
                     class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add Data</a>
 
-                <button @click="showImport = !showImport"
-                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-                    Import Excel
-                </button>
+                <a href="{{ route('data-images.import') }}"
+                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Import Excel</a>
             </div>
         </div>
     </x-slot>
 
     <div class="py-12" x-data="{ showImport: false }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-
-            <div x-show="showImport" x-cloak class="bg-white p-6 shadow sm:rounded-lg border-l-4 border-green-500">
-                <h3 class="text-lg font-bold mb-3">Upload File Excel</h3>
-                <form action="{{ route('data-images.import') }}" method="POST" enctype="multipart/form-data"
-                    class="flex gap-4">
-                    @csrf
-                    <input type="file" name="file" class="border p-2 rounded" required>
-                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Upload &
-                        Import</button>
-                </form>
-            </div>
-
+            @if(session('success'))
+                <div class="bg-green-500 text-white p-4 rounded mb-4">{{ session('success') }}</div>
+            @endif
             <div class="bg-white p-6 shadow sm:rounded-lg">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -62,9 +51,3 @@
         </div>
     </div>
 </x-app-layout>
-
-<style>
-    [x-cloak] {
-        display: none !important;
-    }
-</style>
