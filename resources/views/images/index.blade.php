@@ -1,53 +1,65 @@
 <x-app-layout>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css">
+
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800">Data Images</h2>
             <div class="flex gap-2">
                 <a href="{{ route('data-images.create') }}"
-                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add Data</a>
-
+                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Add Data</a>
                 <a href="{{ route('data-images.import') }}"
-                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Import Excel</a>
+                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Import Data</a>
             </div>
         </div>
     </x-slot>
 
-    <div class="py-12" x-data="{ showImport: false }">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             @if(session('success'))
-                <div class="bg-green-500 text-white p-4 rounded mb-4">{{ session('success') }}</div>
+                <div class="bg-green-500 text-white p-4 rounded mb-6 shadow-sm">{{ session('success') }}</div>
             @endif
-            <div class="bg-white p-6 shadow sm:rounded-lg">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b bg-gray-50">
-                            <th class="p-3">ID</th>
-                            <th class="p-3">Subdomain</th>
-                            <th class="p-3">Nama</th>
-                            <th class="p-3">Created At</th>
-                            <th class="p-3">Aksi</th>
+
+            <div class="bg-white p-6 shadow-sm sm:rounded-lg border border-gray-200">
+                <table class="w-full text-sm text-left text-gray-600" id="images-table">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                        <tr>
+                            <th class="px-6 py-4">ID</th>
+                            <th class="px-6 py-4">Subdomain</th>
+                            <th class="px-6 py-4">Nama</th>
+                            <th class="px-6 py-4">Created At</th>
+                            <th class="px-6 py-4">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach($images as $item)
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="p-3">{{ $item->id }}</td>
-                                <td class="p-3">{{ $item->subdomain }}</td>
-                                <td class="p-3">{{ $item->nama }}</td>
-                                <td class="p-3">{{ $item->created_at }}</td>
-                                <td class="p-3">
-                                    <a href="{{ route('data-images.edit', $item->id) }}" class="text-blue-600">Edit</a>
-                                    <form action="{{ route('data-images.destroy', $item->id) }}" method="POST"
-                                        onsubmit="return confirm('Hapus?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="text-red-600">Hapus</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
                 </table>
             </div>
         </div>
     </div>
 </x-app-layout>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.tailwindcss.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#images-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '{!! route("data-images.index") !!}',
+            columns: [
+                { data: 'id', name: 'id', className: 'px-6 py-4' },
+                { data: 'subdomain', name: 'subdomain', className: 'px-6 py-4' },
+                { data: 'nama', name: 'nama', className: 'px-6 py-4' },
+                { data: 'created_at', name: 'created_at', className: 'px-6 py-4' },
+                { data: 'action', name: 'action', orderable: false, searchable: false, className: 'px-6 py-4' }
+            ],
+            // Menyesuaikan tampilan agar lebih minimalis
+            dom: '<"flex justify-between items-center mb-4"f>t<"flex justify-between items-center mt-4"ip>',
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Cari data...",
+                lengthMenu: "_MENU_",
+            }
+        });
+    });
+</script>

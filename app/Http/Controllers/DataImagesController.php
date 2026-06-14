@@ -6,13 +6,27 @@ use App\Models\DataImages;
 use App\Imports\DataImagesImport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Yajra\DataTables\DataTables;
 
 class DataImagesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $images = DataImages::all();
-        return view('images.index', compact('images'));
+        if ($request->ajax()) {
+            $data = DataImages::query();
+            return DataTables::of($data)
+                ->addColumn('action', function ($row) {
+                    $btn = '<a href="' . route('data-images.edit', $row->id) . '" class="text-blue-600 mr-2">Edit</a>';
+                    $btn .= '<form action="' . route('data-images.destroy', $row->id) . '" method="POST" class="inline" onsubmit="return confirm(\'Hapus?\')">
+                            ' . csrf_field() . method_field("DELETE") . '
+                            <button type="submit" class="text-red-600">Hapus</button>
+                         </form>';
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        return view('images.index');
     }
 
     public function store(Request $request)
