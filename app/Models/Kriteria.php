@@ -11,7 +11,7 @@ class Kriteria extends Model
         'nama_kriteria',
         'bobot',
         'satuan',
-        'deskrripsi',
-        'jenis',
+        'deskripsi',
+        'jenis'
     ];
 }
