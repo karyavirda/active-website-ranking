@@ -28,8 +28,8 @@ class DataLogsImport implements ToModel, WithHeadingRow
             // Sesuaikan dengan nama header di Excel
             'id' => $row['id'],
             'subdomain' => $row['subdomain'],
-            'admin_name' => $row['admin_name'],
-            'activity' => $row['activity'],
+            'nama_admin' => $row['nama_admin'],
+            'aktivitas' => $row['aktivitas'],
             'activity_date' => $row['activity_date'],
         ]);
     }

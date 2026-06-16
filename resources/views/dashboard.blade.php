@@ -6,12 +6,151 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
+
+                <div
+                    class="bg-white p-4 shadow sm:rounded-lg border-l-4 border-blue-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Subdomain</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">{{ $totalDomains }}</h3>
+                    </div>
                 </div>
+
+                <div
+                    class="bg-white p-4 shadow sm:rounded-lg border-l-4 border-green-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Data Berita</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">{{ $totalNews }}</h3>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-white p-4 shadow sm:rounded-lg border-l-4 border-purple-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Data Parts</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">{{ $totalParts }}</h3>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-white p-4 shadow sm:rounded-lg border-l-4 border-yellow-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Data Pages</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">{{ $totalPages }}</h3>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-white p-4 shadow sm:rounded-lg border-l-4 border-pink-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Data Images</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">{{ $totalImages }}</h3>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-white p-4 shadow sm:rounded-lg border-l-4 border-red-500 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Data Logs</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">{{ $totalLogs }}</h3>
+                    </div>
+                </div>
+
             </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 shadow sm:rounded-lg lg:col-span-1">
+                    <h3 class="font-bold text-lg text-gray-800 mb-4 flex items-center gap-2">
+                        ⚙️ Bobot Parameter SAW
+                    </h3>
+                    @if($currentCriteria)
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <div>
+                                    <span class="block text-gray-800 font-semibold text-sm">Konsistensi (C1)</span>
+                                    <span class="text-xs text-gray-400">Rata-rata post/minggu</span>
+                                </div>
+                                <span class="font-bold text-blue-600 text-lg">{{ $currentCriteria->c1 }}%</span>
+                            </div>
+
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <div>
+                                    <span class="block text-gray-800 font-semibold text-sm">Volume Konten (C2)</span>
+                                    <span class="text-xs text-gray-400">Total akumulasi item</span>
+                                </div>
+                                <span class="font-bold text-blue-600 text-lg">{{ $currentCriteria->c2 }}%</span>
+                            </div>
+
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <div>
+                                    <span class="block text-gray-800 font-semibold text-sm">Freshness (C3)</span>
+                                    <span class="text-xs text-gray-400">Skor kesegaran data (0 - 90)</span>
+                                </div>
+                                <span class="font-bold text-blue-600 text-lg">{{ $currentCriteria->c3 }}%</span>
+                            </div>
+
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <div>
+                                    <span class="block text-gray-800 font-semibold text-sm">Variasi Konten (C4)</span>
+                                    <span class="text-xs text-gray-400">Keberagaman jenis konten</span>
+                                </div>
+                                <span class="font-bold text-blue-600 text-lg">{{ $currentCriteria->c4 }}%</span>
+                            </div>
+
+                            <div class="flex justify-between items-center pb-2">
+                                <div>
+                                    <span class="block text-gray-800 font-semibold text-sm">Admin Activity (C5)</span>
+                                    <span class="text-xs text-gray-400">Intensitas log aktivitas</span>
+                                </div>
+                                <span class="font-bold text-blue-600 text-lg">{{ $currentCriteria->c5 }}%</span>
+                            </div>
+                        </div>
+                    @else
+                        <p class="text-sm text-red-500 italic">Bobot kriteria belum diatur di sistem.</p>
+                    @endif
+                </div>
+
+                <div class="bg-white p-6 shadow sm:rounded-lg lg:col-span-2">
+                    <h3 class="font-bold text-lg text-gray-800 mb-4 flex items-center gap-2">
+                        🏆 Top 5 Subdomain Terbaik (SAW)
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-600">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-center">Peringkat</th>
+                                    <th class="px-4 py-3">Nama Subdomain</th>
+                                    <th class="px-4 py-3 text-center">Skor Akhir</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                @foreach($top5Rankings as $rank)
+                                    <tr class="hover:bg-gray-50 transition">
+                                        <td class="px-4 py-3 text-center font-bold text-gray-700">
+                                            #{{ $rank['no'] }}
+                                        </td>
+                                        <td class="px-4 py-3 font-medium text-gray-900">
+                                            {{ $rank['subdomain'] }}
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <span
+                                                class="inline-block bg-green-50 text-green-700 font-semibold px-2.5 py-1 rounded-full text-xs">
+                                                {{ $rank['score'] }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-4 italic">*Data ranking di atas saat ini masih bersifat simulasi
+                        awal.</p>
+                </div>
+
+            </div>
+
         </div>
     </div>
 </x-app-layout>

@@ -14,8 +14,12 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
-                    <x-nav-link :href="route('kriteria.index')" :active="request()->routeIs('kriteria.*')">
+                    <x-nav-link :href="route('criterias.index')" :active="request()->routeIs('criterias.*')">
                         {{ __('Kriteria') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('subdomains.index')" :active="request()->routeIs('subdomains.*')">
+                        {{ __('Subdomain') }}
                     </x-nav-link>
 
                     <div class="hidden sm:flex sm:items-center sm:ms-6">
@@ -44,6 +48,10 @@
                             </x-slot>
                         </x-dropdown>
                     </div>
+
+                    <x-nav-link :href="route('saw.index')" :active="request()->routeIs('saw.*')">
+                        {{ __('SAW Ranking') }}
+                    </x-nav-link>
                 </div>
             </div>
 

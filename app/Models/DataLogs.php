@@ -14,8 +14,8 @@ class DataLogs extends Model
     protected $fillable = [
         'id', // Sertakan ini agar bisa diinput manual
         'subdomain',
-        'admin_name',
-        'activity',
+        'nama_admin',
+        'aktivitas',
         'activity_date'
     ];
 }

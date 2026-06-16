@@ -10,12 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('data_logs', function (Blueprint $table) {
-            $table->id()->primary();
-            $table->string('subdomain');
-            $table->string('nama_admin');
-            $table->string('aktivitas');
-            $table->timestamp('activity_date')->nullable();
+        Schema::create('subdomains', function (Blueprint $table) {
+            $table->id();
+            $table->string('subdomain')->unique();
+            $table->string('paket');
+            $table->timestamps();
         });
     }
 
@@ -24,6 +23,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('data_logs');
+        Schema::dropIfExists('subdomains');
     }
 };

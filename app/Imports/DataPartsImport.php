@@ -29,7 +29,7 @@ class DataPartsImport implements ToModel, WithHeadingRow
             'subdomain' => $row['subdomain'],
             'judul' => $row['judul'],
             'tipe' => $row['tipe'],
-            'update_at' => $row['update_at'],
+            'created_at' => $row['created_at'],
         ]);
     }
 }

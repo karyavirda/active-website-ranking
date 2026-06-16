@@ -2,23 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DataNews;
-use App\Imports\DataNewsImport;
-use Illuminate\Http\Request;
+use App\Models\Subdomains;
+use App\Imports\SubdomainsImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 
-
-class DataNewsController extends Controller
+class SubdomainsController extends Controller
 {
+
+
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = DataNews::query();
+            $data = Subdomains::query();
             return DataTables::of($data)
                 ->addColumn('action', function ($row) {
-                    $btn = '<a href="' . route('data-news.edit', $row->id) . '" class="text-blue-600 mr-2">Edit</a>';
-                    $btn .= '<form action="' . route('data-news.destroy', $row->id) . '" method="POST" class="inline" onsubmit="return confirm(\'Hapus?\')">
+                    $btn = '<a href="' . route('subdomains.edit', $row->id) . '" class="text-blue-600 mr-2">Edit</a>';
+                    $btn .= '<form action="' . route('subdomains.destroy', $row->id) . '" method="POST" class="inline" onsubmit="return confirm(\'Hapus?\')">
                             ' . csrf_field() . method_field("DELETE") . '
                             <button type="submit" class="text-red-600">Hapus</button>
                          </form>';
@@ -27,30 +28,30 @@ class DataNewsController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('news.index');
+        return view('subdomains.index');
     }
 
     public function store(Request $request)
     {
-        $request->validate(['id' => 'required|unique:data_news,id,', 'subdomain' => 'required', 'judul' => 'required', 'created_at' => 'nullable|date'], [
-            'id.unique' => 'ID ini sudah terdaftar! Silakan gunakan ID lain.',
-            'id.required' => 'ID wajib diisi!',
+        $request->validate(['subdomain' => 'required|unique:subdomains,subdomain', 'paket' => 'required'], [
+            'subdomain.unique' => 'Subdomain ini sudah terdaftar! Silakan gunakan subdomain lain.',
+            'subdomain.required' => 'Subdomain wajib diisi!',
         ]);
-        DataNews::create($request->all());
-        return redirect()->route('data-news.index')->with('success', 'Data berhasil ditambah');
+        Subdomains::create($request->all());
+        return redirect()->route('subdomains.index')->with('success', 'Data berhasil ditambah');
     }
 
 
     public function destroy($id)
     {
-        DataNews::where('id', $id)->delete();
+        Subdomains::where('id', $id)->delete();
         return back()->with('success', 'Data dihapus');
     }
 
     // Modul Import
     public function import()
     {
-        return view('news.import');
+        return view('subdomains.import');
     }
 
     public function importProcess(Request $request)
@@ -80,38 +81,37 @@ class DataNewsController extends Controller
             }
         } else {
             // HAPUS try-catch di sini untuk sementara agar error terlihat
-            \Excel::import(new \App\Imports\DataNewsImport, $file);
+            \Excel::import(new \App\Imports\SubdomainsImport, $file);
         }
 
-        return redirect()->route('data-news.index')->with('success', 'Data berhasil diimpor!');
+        return redirect()->route('subdomains.index')->with('success', 'Data berhasil diimpor!');
     }
 
     public function create()
     {
-        return view('news.create');
+        return view('subdomains.create');
     }
 
     public function edit($id)
     {
-        $news = DataNews::findOrFail($id);
-        return view('news.edit', compact('news'));
+        $subdomain = Subdomains::findOrFail($id);
+        return view('subdomains.edit', compact('subdomain'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
             // 'unique:tabel,kolom,id_yang_dikecualikan'
-            'id' => 'required|unique:data_news,id,' . $id,
-            'subdomain' => 'required',
-            'judul' => 'required',
-            'created_at' => 'nullable|date'
+            'subdomain' => 'required|unique:subdomains,id,' . $id,
+            'paket' => 'required'
         ], [
-            'id.unique' => 'ID ini sudah dipakai oleh data lain!',
-            'id.required' => 'ID wajib diisi!',
+            'subdomain.unique' => 'Subdomain ini sudah terdaftar! Silakan gunakan subdomain lain.',
+            'subdomain.required' => 'Subdomain wajib diisi!',
         ]);
 
-        DataNews::where('id', $id)->update($request->except(['_token', '_method']));
+        Subdomains::where('id', $id)->update($request->except(['_token', '_method']));
 
-        return redirect()->route('data-news.index')->with('success', 'Data berhasil diupdate!');
+        return redirect()->route('subdomains.index')->with('success', 'Data berhasil diupdate!');
     }
+
 }
