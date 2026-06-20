@@ -17,7 +17,6 @@
             <h2 class="text-xl font-bold mb-4">Edit Data</h2>
             <form action="{{ route('data-pages.update', $pages->id) }}" method="POST">
                 @csrf @method('PUT')
-                <input type="number" name="id" value="{{ $pages->id }}" class="w-full mb-2 border rounded p-2" required>
 
                 <input type="text" name="subdomain" value="{{ $pages->subdomain }}"
                     class="w-full mb-2 border rounded p-2" required>

@@ -17,7 +17,6 @@
             <h2 class="text-xl font-bold mb-4">Edit Data</h2>
             <form action="{{ route('data-parts.update', $parts->id) }}" method="POST">
                 @csrf @method('PUT')
-                <input type="number" name="id" value="{{ $parts->id }}" class="w-full mb-2 border rounded p-2" required>
 
                 <input type="text" name="subdomain" value="{{ $parts->subdomain }}"
                     class="w-full mb-2 border rounded p-2" required>

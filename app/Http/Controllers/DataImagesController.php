@@ -31,10 +31,7 @@ class DataImagesController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['id' => 'required|unique:data_images,id,', 'subdomain' => 'required', 'nama' => 'required', 'created_at' => 'nullable|date'], [
-            'id.unique' => 'ID ini sudah terdaftar! Silakan gunakan ID lain.',
-            'id.required' => 'ID wajib diisi!',
-        ]);
+        $request->validate(['subdomain' => 'required', 'nama' => 'required', 'created_at' => 'nullable|date']);
         DataImages::create($request->all());
         return redirect()->route('data-images.index')->with('success', 'Data berhasil ditambah');
     }
@@ -60,28 +57,52 @@ class DataImagesController extends Controller
         $file = $request->file('file');
         $extension = strtolower($file->getClientOriginalExtension());
 
-        // Filter manual ekstensi
         if (!in_array($extension, ['xlsx', 'xls', 'sql'])) {
             return back()->with('error', 'Format file tidak didukung! Gunakan .xlsx, .xls, atau .sql');
         }
 
         if ($extension === 'sql') {
-            $sql = file_get_contents($file->getRealPath());
+            $sqlContent = file_get_contents($file->getRealPath());
 
-            $sql = str_ireplace('INSERT INTO', 'INSERT IGNORE INTO', $sql);
+            // 1. Ganti INSERT INTO menjadi INSERT IGNORE INTO agar tidak duplikat
+            $sqlContent = str_ireplace('INSERT INTO', 'INSERT IGNORE INTO', $sqlContent);
 
-            // Coba eksekusi langsung
-            $success = \DB::statement($sql);
-
-            if (!$success) {
-                return back()->with('error', 'Query SQL gagal dijalankan.');
+            // 2. Bersihkan baris komentar (-- atau #) agar tidak mengganggu PDO
+            $lines = explode("\n", $sqlContent);
+            $cleanSql = '';
+            foreach ($lines as $line) {
+                $trimmed = trim($line);
+                if ($trimmed === '' || str_starts_with($trimmed, '--') || str_starts_with($trimmed, '#')) {
+                    continue;
+                }
+                $cleanSql .= $line . "\n";
             }
+
+            $cleanSql = trim($cleanSql);
+
+            if (!empty($cleanSql)) {
+                \DB::beginTransaction();
+                try {
+                    // 3. Gunakan koneksi PDO mentah bawaan Laravel untuk mengeksekusi multi-query sekaligus
+                    // Ini cara paling aman agar teks berita yang mengandung tanda baca tidak rusak atau terpotong
+                    $pdo = \DB::connection()->getPdo();
+                    $pdo->exec($cleanSql);
+
+                    \DB::commit();
+                } catch (\Exception $e) {
+                    \DB::rollBack();
+                    // Jika gagal, tangkap error database asli dan tampilkan ke layar!
+                    return back()->with('error', 'Proses SQL Gagal! Kendala: ' . $e->getMessage());
+                }
+            } else {
+                return back()->with('error', 'File SQL kosong atau hanya berisi komentar.');
+            }
+
         } else {
-            // HAPUS try-catch di sini untuk sementara agar error terlihat
-            \Excel::import(new \App\Imports\DataImagesImport, $file);
+            \Excel::import(new \App\Imports\DataNewsImport, $file);
         }
 
-        return redirect()->route('data-images.index')->with('success', 'Data berhasil diimpor!');
+        return redirect()->route('data-news.index')->with('success', 'Semua data SQL berhasil diimpor sepenuhnya!');
     }
 
     public function create()
@@ -98,14 +119,9 @@ class DataImagesController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            // 'unique:tabel,kolom,id_yang_dikecualikan'
-            'id' => 'required|unique:data_images,id,' . $id,
             'subdomain' => 'required',
             'nama' => 'required',
             'created_at' => 'nullable|date'
-        ], [
-            'id.unique' => 'ID ini sudah dipakai oleh data lain!',
-            'id.required' => 'ID wajib diisi!',
         ]);
 
         DataImages::where('id', $id)->update($request->except(['_token', '_method']));

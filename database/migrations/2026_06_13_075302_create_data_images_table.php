@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('data_images', function (Blueprint $table) {
-            $table->id()->primary();
+            $table->id();
             $table->string('subdomain');
             $table->string('nama');
             $table->timestamp('created_at')->nullable();

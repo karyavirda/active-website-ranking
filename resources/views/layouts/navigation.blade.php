@@ -44,7 +44,6 @@
                                 <x-dropdown-link :href="url('/data-images')">Images</x-dropdown-link>
                                 <x-dropdown-link :href="url('/data-pages')">Pages</x-dropdown-link>
                                 <x-dropdown-link :href="url('/data-parts')">Parts</x-dropdown-link>
-                                <x-dropdown-link :href="url('/data-logs')">Logs</x-dropdown-link>
                             </x-slot>
                         </x-dropdown>
                     </div>

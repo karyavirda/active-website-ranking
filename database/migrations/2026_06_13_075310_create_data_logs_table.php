@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('data_logs', function (Blueprint $table) {
-            $table->id()->primary();
+            $table->id();
             $table->string('subdomain');
             $table->string('nama_admin');
             $table->string('aktivitas');

@@ -69,16 +69,6 @@
                                 required step="0.01" placeholder="Contoh: 20">
                         </div>
 
-                        <div>
-                            <label class="block font-medium text-gray-700 mb-1">
-                                <span class="block text-gray-800 font-semibold text-sm">Admin Activity (C5)</span>
-                                <span class="text-xs text-gray-400">Intensitas log aktivitas</span>
-                            </label>
-                            <input type="number" name="c5" value="{{ $criteria->c5 ?? '' }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                required step="0.01" placeholder="Contoh: 20">
-                        </div>
-
                     </div>
 
                     <div class="mt-6 flex items-center gap-4">

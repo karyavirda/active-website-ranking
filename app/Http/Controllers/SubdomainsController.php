@@ -15,7 +15,10 @@ class SubdomainsController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = Subdomains::query();
+            // Tambahkan orderBy('nama_kolom', 'asc') di sini. 
+            // Pastikan sesuaikan nama kolomnya (misal: 'name' atau 'subdomain')
+            $data = Subdomains::query()->orderBy('subdomain', 'asc');
+
             return DataTables::of($data)
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="' . route('subdomains.edit', $row->id) . '" class="text-blue-600 mr-2">Edit</a>';

@@ -23,10 +23,9 @@ class CriteriasController extends Controller
             'c2' => 'required|numeric',
             'c3' => 'required|numeric',
             'c4' => 'required|numeric',
-            'c5' => 'required|numeric',
         ]);
 
-        $total = $request->c1 + $request->c2 + $request->c3 + $request->c4 + $request->c5;
+        $total = $request->c1 + $request->c2 + $request->c3 + $request->c4;
 
         // Cek jika total bukan 100
         if ($total != 100) {

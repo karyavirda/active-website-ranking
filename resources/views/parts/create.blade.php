@@ -18,8 +18,6 @@
             <form action="{{ route('data-parts.store') }}" method="POST">
                 @csrf
 
-                <input type="number" name="id" placeholder="ID" class="w-full mb-2 border rounded p-2" required>
-
                 <input type="text" name="subdomain" placeholder="Subdomain" class="w-full mb-2 border rounded p-2"
                     required>
 

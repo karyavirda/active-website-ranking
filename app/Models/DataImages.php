@@ -12,7 +12,6 @@ class DataImages extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'id', // Sertakan ini agar bisa diinput manual
         'subdomain',
         'nama',
         'created_at'
