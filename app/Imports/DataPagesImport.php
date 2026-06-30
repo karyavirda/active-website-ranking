@@ -19,6 +19,7 @@ class DataPagesImport implements ToModel, WithHeadingRow
         return new DataPages([
             'subdomain' => $row['subdomain'],
             'judul' => $row['judul'],
+            'tipe' => $row['tipe'],
             'created_at' => $row['created_at'],
         ]);
     }

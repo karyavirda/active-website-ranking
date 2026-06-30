@@ -24,6 +24,9 @@
                 <input type="text" name="judul" value="{{ $pages->judul }}" class="w-full mb-2 border rounded p-2"
                     required>
 
+                <input type="text" name="tipe" value="{{ $pages->tipe }}" class="w-full mb-2 border rounded p-2"
+                    required>
+
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Dibuat</label>
                     <input type="datetime-local" name="created_at" value="{{ $pages->created_at }}"

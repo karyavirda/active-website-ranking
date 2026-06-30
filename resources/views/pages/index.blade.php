@@ -26,6 +26,7 @@
                             <th class="px-6 py-4">ID</th>
                             <th class="px-6 py-4">Subdomain</th>
                             <th class="px-6 py-4">Judul</th>
+                            <th class="px-6 py-4">Tipe</th>
                             <th class="px-6 py-4">Created At</th>
                             <th class="px-6 py-4">Aksi</th>
                         </tr>
@@ -50,6 +51,7 @@
                 { data: 'id', name: 'id', className: 'px-6 py-4' },
                 { data: 'subdomain', name: 'subdomain', className: 'px-6 py-4' },
                 { data: 'judul', name: 'judul', className: 'px-6 py-4' },
+                { data: 'tipe', name: 'tipe', className: 'px-6 py-4' },
                 { data: 'created_at', name: 'created_at', className: 'px-6 py-4' },
                 { data: 'action', name: 'action', orderable: false, searchable: false, className: 'px-6 py-4' }
             ],

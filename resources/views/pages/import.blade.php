@@ -25,7 +25,8 @@
                             <li>Kolom A: ID</li>
                             <li>Kolom B: Subdomain</li>
                             <li>Kolom C: Judul</li>
-                            <li>Kolom D: Created At (Y-m-d H:i:s)</li>
+                            <li>Kolom D: Tipe</li>
+                            <li>Kolom E: Created At (Y-m-d H:i:s)</li>
                         </ul>
                     </div>
                     <div>

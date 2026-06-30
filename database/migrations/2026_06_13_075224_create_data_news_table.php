@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('subdomain');
             $table->string('judul');
+            $table->string('tipe');
             $table->timestamp('created_at')->nullable();
         });
     }

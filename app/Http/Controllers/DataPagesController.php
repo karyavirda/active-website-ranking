@@ -32,7 +32,7 @@ class DataPagesController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['subdomain' => 'required', 'judul' => 'required', 'created_at' => 'nullable|date']);
+        $request->validate(['subdomain' => 'required', 'judul' => 'required', 'tipe' => 'required', 'created_at' => 'nullable|date']);
         DataPages::create($request->all());
         return redirect()->route('data-pages.index')->with('success', 'Data berhasil ditambah');
     }
@@ -124,6 +124,7 @@ class DataPagesController extends Controller
         $request->validate([
             'subdomain' => 'required',
             'judul' => 'required',
+            'tipe' => 'required',
             'created_at' => 'nullable|date'
         ]);
 

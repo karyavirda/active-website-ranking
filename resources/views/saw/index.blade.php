@@ -16,7 +16,7 @@
 
                 <form action="{{ route('saw.process') }}" method="POST" class="space-y-6">
                     @csrf
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
                         <div>
                             <label class="block font-medium text-gray-700 mb-1">
                                 <span class="block text-gray-800 font-semibold text-sm">Tanggal Maksimal</span>
@@ -25,20 +25,6 @@
                             <input type="date" name="max_date" value="{{ $maxDateInput ?? date('Y-m-d') }}"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                                 required>
-                        </div>
-
-                        <div>
-                            <label class="block font-medium text-gray-700 mb-1">
-                                <span class="block text-gray-800 font-semibold text-sm">Rentang Analisis Data</span>
-                                <span class="text-xs text-gray-400">Periode mundur analisis data</span>
-                            </label>
-                            <select name="period_range" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm" required>
-                                <option value="7_days" {{ ($periodRange ?? '') == '7_days' ? 'selected' : '' }}>7 Hari Terakhir</option>
-                                <option value="30_days" {{ ($periodRange ?? '') == '30_days' ? 'selected' : '' }}>30 Hari Terakhir</option>
-                                <option value="3_months" {{ ($periodRange ?? '3_months') == '3_months' ? 'selected' : '' }}>3 Bulan Terakhir (Rekomendasi C1)</option>
-                                <option value="6_months" {{ ($periodRange ?? '') == '6_months' ? 'selected' : '' }}>6 Bulan Terakhir</option>
-                                <option value="1_year" {{ ($periodRange ?? '') == '1_year' ? 'selected' : '' }}>1 Tahun Terakhir</option>
-                            </select>
                         </div>
                     </div>
 
@@ -77,7 +63,7 @@
                                 @foreach($matrixKeputusan as $row)
                                     <tr class="hover:bg-gray-50/80 transition">
                                         <td class="px-4 py-3 font-medium text-gray-900">{{ $row['subdomain'] }}</td>
-                                        <td class="px-4 py-3 text-center font-semibold text-blue-600 bg-blue-50/20">{{ number_format($row['c1'], 2) }}</td>
+                                        <td class="px-4 py-3 text-center font-semibold text-blue-600 bg-blue-50/20">{{ number_format($row['c1'], 4) }}</td>
                                         <td class="px-4 py-3 text-center font-medium text-gray-800">{{ number_format($row['c2'], 0, ',', '.') }}</td>
                                         <td class="px-4 py-3 text-center">{{ $row['c3'] }}</td>
                                         <td class="px-4 py-3 text-center">{{ $row['c4'] }}</td>
@@ -112,10 +98,10 @@
                                 @foreach($matrixNormalisasi as $row)
                                     <tr class="hover:bg-gray-50/80 transition">
                                         <td class="px-4 py-3 font-medium text-gray-900">{{ $row['subdomain'] }}</td>
-                                        <td class="px-4 py-3 text-center font-medium text-gray-800">{{ number_format($row['c1'], 2) }}</td>
-                                        <td class="px-4 py-3 text-center font-medium text-gray-800">{{ number_format($row['c2'], 2) }}</td>
-                                        <td class="px-4 py-3 text-center font-medium text-gray-800">{{ number_format($row['c3'], 2) }}</td>
-                                        <td class="px-4 py-3 text-center font-medium text-gray-800">{{ number_format($row['c4'], 2) }}</td>
+                                        <td class="px-4 py-3 text-center font-medium text-gray-800">{{ number_format($row['c1'], 4) }}</td>
+                                        <td class="px-4 py-3 text-center font-medium text-gray-800">{{ number_format($row['c2'], 4) }}</td>
+                                        <td class="px-4 py-3 text-center font-medium text-gray-800">{{ number_format($row['c3'], 4) }}</td>
+                                        <td class="px-4 py-3 text-center font-medium text-gray-800">{{ number_format($row['c4'], 4) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -136,15 +122,20 @@
                         <table class="w-full text-sm text-left text-gray-600">
                             <thead class="text-xs text-gray-700 uppercase bg-green-50/30 border-b">
                                 <tr>
-                                    <th class="px-6 py-3 text-center w-24">Peringkat</th>
+                                    <th class="px-4 py-3 text-center w-20">Peringkat</th>
                                     <th class="px-4 py-3">Nama Subdomain</th>
-                                    <th class="px-6 py-3 text-center w-40">Nilai Preferensi ($V_i$)</th>
+                                    <!-- Tambahan Kolom Rincian Perkalian Bobot -->
+                                    <th class="px-3 py-3 text-center bg-slate-50/50">C1 ({{ $currentCriteria->c1 }}%)</th>
+                                    <th class="px-3 py-3 text-center bg-slate-50/50">C2 ({{ $currentCriteria->c2 }}%)</th>
+                                    <th class="px-3 py-3 text-center bg-slate-50/50">C3 ({{ $currentCriteria->c3 }}%)</th>
+                                    <th class="px-3 py-3 text-center bg-slate-50/50">C4 ({{ $currentCriteria->c4 }}%)</th>
+                                    <th class="px-6 py-3 text-center w-40 font-bold bg-green-50/50 text-green-800">Total Skor ($V_i$)</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 @foreach($hasilRanking as $index => $rank)
                                     <tr class="{{ $index == 0 ? 'bg-yellow-50/50 hover:bg-yellow-50 font-semibold' : 'hover:bg-gray-50/80' }} transition">
-                                        <td class="px-6 py-3 text-center">
+                                        <td class="px-4 py-3 text-center">
                                             @if($index == 0)
                                                 <span class="inline-block bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded">🥇 ke-1</span>
                                             @elseif($index == 1)
@@ -152,12 +143,20 @@
                                             @elseif($index == 2)
                                                 <span class="inline-block bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded">🥉 ke-3</span>
                                             @else
-                                                <span class="text-gray-500 text-xs">Ke-{{ $index + 1 }}</span>
+                                                <span class="text-gray-500 text-xs font-medium">Ke-{{ $index + 1 }}</span>
                                             @endif
                                         </td>
-                                        <td class="px-4 py-3 text-gray-900">{{ $rank['subdomain'] }}</td>
-                                        <td class="px-6 py-3 text-center">
-                                            <span class="inline-block {{ $index == 0 ? 'bg-green-100 text-green-800' : 'bg-blue-50 text-blue-700' }} font-bold px-2.5 py-1 rounded-full text-xs">
+                                        <td class="px-4 py-3 text-gray-900 font-medium">{{ $rank['subdomain'] }}</td>
+                                        
+                                        <!-- Menampilkan Nilai yang Sudah Dikalikan Bobot -->
+                                        <td class="px-3 py-3 text-center text-xs text-gray-500 bg-slate-50/20">{{ number_format($rank['v1'], 4) }}</td>
+                                        <td class="px-3 py-3 text-center text-xs text-gray-500 bg-slate-50/20">{{ number_format($rank['v2'], 4) }}</td>
+                                        <td class="px-3 py-3 text-center text-xs text-gray-500 bg-slate-50/20">{{ number_format($rank['v3'], 4) }}</td>
+                                        <td class="px-3 py-3 text-center text-xs text-gray-500 bg-slate-50/20">{{ number_format($rank['v4'], 4) }}</td>
+                                        
+                                        <!-- Skor Preferensi Akhir (V) -->
+                                        <td class="px-6 py-3 text-center bg-green-50/20">
+                                            <span class="inline-block {{ $index == 0 ? 'bg-green-200 text-green-900' : 'bg-green-100 text-green-800' }} font-bold px-3 py-1 rounded-full text-xs">
                                                 {{ number_format($rank['skor'], 4) }}
                                             </span>
                                         </td>

@@ -11,6 +11,7 @@ class DataPages extends Model
     protected $fillable = [
         'subdomain',
         'judul',
+        'tipe',
         'created_at'
     ];
 }

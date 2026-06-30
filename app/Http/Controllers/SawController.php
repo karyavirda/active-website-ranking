@@ -17,7 +17,6 @@ class SawController extends Controller
     {
         // 1. Tangkap parameter input dari form depan (Tanggal Maksimal & Rentang Analisis)
         $maxDateInput = $request->input('max_date'); // Ini tanggal_max dari form
-        $periodRange = $request->input('period_range'); // Ini pilihan dropdown rentang waktu
 
         // Ambil bobot kriteria yang aktif dari database
         $currentCriteria = \DB::table('criterias')->first();
@@ -30,15 +29,7 @@ class SawController extends Controller
 
         // 2. Tentukan jumlah hari interval berdasarkan pilihan dropdown period_range untuk rumus C3 & query C1
         $intervalHari = 90; // Default 3 bulan
-        if ($periodRange === '7_days') {
-            $intervalHari = 7;
-        } elseif ($periodRange === '30_days') {
-            $intervalHari = 30;
-        } elseif ($periodRange === '6_months') {
-            $intervalHari = 180;
-        } elseif ($periodRange === '1_year') {
-            $intervalHari = 365;
-        }
+
 
         // Konversi objek tanggal Carbon berdasarkan input user
         $maxDate = \Carbon\Carbon::parse($maxDateInput)->endOfDay();
@@ -50,11 +41,12 @@ class SawController extends Controller
         $pageCountsC1 = \DB::table('data_pages')->whereBetween('created_at', [$minDate, $maxDate])->groupBy('subdomain')->pluck(\DB::raw('count(*)'), 'subdomain')->toArray();
         $partsCountsC1 = \DB::table('data_parts')->whereBetween('created_at', [$minDate, $maxDate])->groupBy('subdomain')->pluck(\DB::raw('count(*)'), 'subdomain')->toArray();
 
-        // ==================== [C2] QUERY GELONDONGAN TANPA BATASAN WAKTU ====================
-        $newsCountsC2 = \DB::table('data_news')->groupBy('subdomain')->pluck(\DB::raw('count(*)'), 'subdomain')->toArray();
-        $imageCountsC2 = \DB::table('data_images')->groupBy('subdomain')->pluck(\DB::raw('count(*)'), 'subdomain')->toArray();
-        $pageCountsC2 = \DB::table('data_pages')->groupBy('subdomain')->pluck(\DB::raw('count(*)'), 'subdomain')->toArray();
-        $partsCountsC2 = \DB::table('data_parts')->groupBy('subdomain')->pluck(\DB::raw('count(*)'), 'subdomain')->toArray();
+        // ==================== [C2] QUERY GELONDONGAN DIBAWAH TANGGAL MAKSIMAL ====================
+        // Hanya menghitung volume data yang dibuat SEBELUM atau SAMA DENGAN tanggal maksimal analisis ($maxDate)
+        $newsCountsC2 = \DB::table('data_news')->where('created_at', '<=', $maxDate)->groupBy('subdomain')->pluck(\DB::raw('count(*)'), 'subdomain')->toArray();
+        $imageCountsC2 = \DB::table('data_images')->where('created_at', '<=', $maxDate)->groupBy('subdomain')->pluck(\DB::raw('count(*)'), 'subdomain')->toArray();
+        $pageCountsC2 = \DB::table('data_pages')->where('created_at', '<=', $maxDate)->groupBy('subdomain')->pluck(\DB::raw('count(*)'), 'subdomain')->toArray();
+        $partsCountsC2 = \DB::table('data_parts')->where('created_at', '<=', $maxDate)->groupBy('subdomain')->pluck(\DB::raw('count(*)'), 'subdomain')->toArray();
 
         // ==================== [C3] QUERY MENCARI TANGGAL POST TERBARU SEBELUM HARI-H ====================
         $latestNews = \DB::table('data_news')->select('subdomain', \DB::raw('MAX(created_at) as max_date'))->where('created_at', '<=', $maxDate)->groupBy('subdomain')->pluck('max_date', 'subdomain')->toArray();
@@ -131,10 +123,10 @@ class SawController extends Controller
 
             $matrixKeputusan[] = [
                 'subdomain' => $subdomainName,
-                'c1' => round($nilaiC1, 2),
-                'c2' => (int) $nilaiC2,
-                'c3' => (int) $nilaiC3,
-                'c4' => (int) $nilaiC4,
+                'c1' => round($nilaiC1, 4),
+                'c2' => (int) $nilaiC2, // Pastikan C2 adalah integer
+                'c3' => (int) $nilaiC3, // Pastikan C3 adalah integer
+                'c4' => (int) $nilaiC4, // Pastikan C4 adalah integer
             ];
         }
 
@@ -156,18 +148,33 @@ class SawController extends Controller
 
             $matrixNormalisasi[] = [
                 'subdomain' => $row['subdomain'],
-                'c1' => round($r1, 2),
-                'c2' => round($r2, 2),
-                'c3' => round($r3, 2),
-                'c4' => round($r4, 2),
+                'c1' => round($r1, 4),
+                'c2' => round($r2, 4),
+                'c3' => round($r3, 4),
+                'c4' => round($r4, 4),
             ];
-            // Hitung Nilai Preferensi (V) -> Mengalikan dengan Bobot desimal (dibagi 100)
-            $skorAkhir = ($r1 * ($w1 / 100)) + ($r2 * ($w2 / 100)) + ($r3 * ($w3 / 100)) + ($r4 * ($w4 / 100));
 
-            // Kita gunakan key 'skor' agar sinkron dengan yang dipanggil di view index.blade.php kemarin
+            // Hitung Nilai Preferensi (V) -> Mengalikan dengan Bobot desimal
+            $w1_desimal = $w1 / 100;
+            $w2_desimal = $w2 / 100;
+            $w3_desimal = $w3 / 100;
+            $w4_desimal = $w4 / 100;
+
+            $v1 = $r1 * $w1_desimal;
+            $v2 = $r2 * $w2_desimal;
+            $v3 = $r3 * $w3_desimal;
+            $v4 = $r4 * $w4_desimal;
+
+            $skorAkhir = $v1 + $v2 + $v3 + $v4;
+
             $hasilRanking[] = [
                 'subdomain' => $row['subdomain'],
                 'skor' => round($skorAkhir, 4),
+                // Simpan nilai r * w yang sudah dibulatkan agar rapi di tabel view
+                'v1' => round($v1, 4),
+                'v2' => round($v2, 4),
+                'v3' => round($v3, 4),
+                'v4' => round($v4, 4),
                 'detail_kriteria' => $row
             ];
         }
@@ -180,7 +187,6 @@ class SawController extends Controller
 
         return view('saw.index', compact(
             'maxDateInput',
-            'periodRange',
             'currentCriteria',
             'matrixKeputusan',
             'matrixNormalisasi',
