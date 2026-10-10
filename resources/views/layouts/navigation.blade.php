@@ -24,6 +24,10 @@
                         {{ __('Kriteria') }}
                     </x-nav-link>
 
+                    <x-nav-link :href="route('criteria-weights.index')" :active="request()->routeIs('criteria-weights.*')">
+                        {{ __('Bobot') }}
+                    </x-nav-link>
+
                     <x-nav-link :href="route('subdomains.index')" :active="request()->routeIs('subdomains.*')">
                         {{ __('Subdomain') }}
                     </x-nav-link>

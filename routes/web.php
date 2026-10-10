@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CriteriasController;
+use App\Http\Controllers\CriteriaWeightsController;
 use App\Http\Controllers\SubdomainsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DataNewsController;
@@ -21,7 +22,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::resource('criterias', CriteriasController::class);
+    Route::resource('criterias', CriteriasController::class)->except(['show']);
+    Route::resource('criteria-weights', CriteriaWeightsController::class)->only(['index', 'store']);
     Route::get('subdomains/import', [SubdomainsController::class, 'import'])->name('subdomains.import');
     Route::post('subdomains/import-process', [SubdomainsController::class, 'importProcess'])->name('subdomains.import-process');
     Route::resource('subdomains', SubdomainsController::class);
