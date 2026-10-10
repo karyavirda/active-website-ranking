@@ -39,21 +39,15 @@
             @if(isset($matrixKeputusan))
                 @php
                     // Sertakan nomor peringkat asli agar tetap benar saat data dicari / dipaginasi
-                    $rankingRows = collect($hasilRanking)->values()->map(fn ($rank, $i) => [
-                        'rank' => $i + 1,
-                        'subdomain' => $rank['subdomain'],
-                        'v1' => $rank['v1'],
-                        'v2' => $rank['v2'],
-                        'v3' => $rank['v3'],
-                        'v4' => $rank['v4'],
-                        'skor' => $rank['skor'],
-                    ]);
+                    $rankingRows = collect($hasilRanking)->values()->map(fn ($rank, $i) => ['rank' => $i + 1] + $rank);
+                    $kodeKriteria = array_column($kriteria, 'kode');
                 @endphp
 
                 <script>
                     function sawTabs(data) {
                         return {
                             data: data,
+                            kode: data.kode,
                             tab: 'keputusan',
                             search: '',
                             perPage: 10,
@@ -103,8 +97,12 @@
                             fmt(value, digits = 4) {
                                 return Number(value).toFixed(digits);
                             },
-                            fmtInt(value) {
-                                return Number(value).toLocaleString('id-ID');
+                            // Kolom matriks keputusan berisi bilangan bulat semua -> tampil tanpa desimal
+                            isIntColumn(kode) {
+                                return this.data.keputusan.every(row => Number.isInteger(row.nilai[kode]));
+                            },
+                            fmtRaw(value, kode) {
+                                return this.isIntColumn(kode) ? Number(value).toLocaleString('id-ID') : this.fmt(value);
                             },
                         };
                     }
@@ -115,7 +113,20 @@
                         keputusan: @js(array_values($matrixKeputusan)),
                         normalisasi: @js(array_values($matrixNormalisasi)),
                         ranking: @js($rankingRows),
+                        kode: @js($kodeKriteria),
                     })">
+
+                    @if(count($unsupported) || $totalBobot != 100)
+                        <div class="mx-6 mt-4 p-3 rounded-md bg-amber-50 border border-amber-200 text-xs text-amber-800 space-y-1">
+                            @if($totalBobot != 100)
+                                <p>⚠️ Total bobot kriteria saat ini <b>{{ $totalBobot }}%</b>, seharusnya 100%. Silakan perbaiki di menu
+                                    <a href="{{ route('criteria-weights.index') }}" class="underline font-semibold">Bobot</a>.</p>
+                            @endif
+                            @if(count($unsupported))
+                                <p>⚠️ Kriteria <b>{{ implode(', ', $unsupported) }}</b> belum memiliki rumus perhitungan, sehingga nilainya dianggap 0.</p>
+                            @endif
+                        </div>
+                    @endif
 
                     {{-- Navigasi Tab --}}
                     <div class="border-b border-gray-200 px-6 pt-4">
@@ -170,24 +181,25 @@
                                     <thead class="text-xs text-gray-700 uppercase bg-slate-50 border-b">
                                         <tr>
                                             <th class="px-4 py-3">Nama Subdomain</th>
-                                            <th class="px-4 py-3 text-center bg-blue-50/50 text-blue-700">C1 (Konsistensi)</th>
-                                            <th class="px-4 py-3 text-center">C2 (Volume)</th>
-                                            <th class="px-4 py-3 text-center">C3 (Freshness)</th>
-                                            <th class="px-4 py-3 text-center">C4 (Variasi)</th>
+                                            @foreach($kriteria as $k)
+                                                <th class="px-4 py-3 text-center">
+                                                    {{ $k['kode'] }} ({{ $k['nama'] }})
+                                                    <span class="block text-[10px] font-normal normal-case {{ $k['tipe'] === 'cost' ? 'text-red-500' : 'text-green-600' }}">{{ ucfirst($k['tipe']) }}</span>
+                                                </th>
+                                            @endforeach
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
                                         <template x-for="row in rows('keputusan')" :key="row.subdomain">
                                             <tr class="hover:bg-gray-50/80 transition">
                                                 <td class="px-4 py-3 font-medium text-gray-900" x-text="row.subdomain"></td>
-                                                <td class="px-4 py-3 text-center font-semibold text-blue-600 bg-blue-50/20" x-text="fmt(row.c1)"></td>
-                                                <td class="px-4 py-3 text-center font-medium text-gray-800" x-text="fmtInt(row.c2)"></td>
-                                                <td class="px-4 py-3 text-center" x-text="row.c3"></td>
-                                                <td class="px-4 py-3 text-center" x-text="row.c4"></td>
+                                                <template x-for="k in kode" :key="k">
+                                                    <td class="px-4 py-3 text-center font-medium text-gray-800" x-text="fmtRaw(row.nilai[k], k)"></td>
+                                                </template>
                                             </tr>
                                         </template>
                                         <tr x-show="filtered('keputusan').length === 0">
-                                            <td colspan="5" class="px-4 py-6 text-center text-gray-400">Data tidak ditemukan.</td>
+                                            <td colspan="{{ count($kriteria) + 1 }}" class="px-4 py-6 text-center text-gray-400">Data tidak ditemukan.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -197,7 +209,7 @@
                         {{-- TAB 2: Normalisasi --}}
                         <div x-show="tab === 'normalisasi'" x-cloak>
                             <div class="mb-3 text-xs font-medium text-gray-600 bg-indigo-50/50 p-3 rounded-md">
-                                💡 Rumus Normalisasi: Nilai Sel / Nilai Maksimal Kolom (Kriteria Benefit)
+                                💡 Rumus Normalisasi: Benefit = Nilai Sel / Nilai Maksimal Kolom &nbsp;·&nbsp; Cost = Nilai Minimal Kolom / Nilai Sel
                             </div>
                             <h3 class="text-base font-bold text-gray-800 mb-1">Tabel 2: Matriks Ternormalisasi ($R$)</h3>
                             <p class="text-xs text-gray-400 mb-4">Hasil transformasi nilai riil menjadi skala indeks antara 0 sampai 1 berdasarkan nilai pencapaian tertinggi.</p>
@@ -207,24 +219,25 @@
                                     <thead class="text-xs text-gray-700 uppercase bg-slate-50 border-b">
                                         <tr>
                                             <th class="px-4 py-3">Nama Subdomain</th>
-                                            <th class="px-4 py-3 text-center">C1 (Konsistensi)</th>
-                                            <th class="px-4 py-3 text-center">C2 (Volume)</th>
-                                            <th class="px-4 py-3 text-center">C3 (Freshness)</th>
-                                            <th class="px-4 py-3 text-center">C4 (Variasi)</th>
+                                            @foreach($kriteria as $k)
+                                                <th class="px-4 py-3 text-center">
+                                                    {{ $k['kode'] }} ({{ $k['nama'] }})
+                                                    <span class="block text-[10px] font-normal normal-case {{ $k['tipe'] === 'cost' ? 'text-red-500' : 'text-green-600' }}">{{ ucfirst($k['tipe']) }}</span>
+                                                </th>
+                                            @endforeach
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100">
                                         <template x-for="row in rows('normalisasi')" :key="row.subdomain">
                                             <tr class="hover:bg-gray-50/80 transition">
                                                 <td class="px-4 py-3 font-medium text-gray-900" x-text="row.subdomain"></td>
-                                                <td class="px-4 py-3 text-center font-medium text-gray-800" x-text="fmt(row.c1)"></td>
-                                                <td class="px-4 py-3 text-center font-medium text-gray-800" x-text="fmt(row.c2)"></td>
-                                                <td class="px-4 py-3 text-center font-medium text-gray-800" x-text="fmt(row.c3)"></td>
-                                                <td class="px-4 py-3 text-center font-medium text-gray-800" x-text="fmt(row.c4)"></td>
+                                                <template x-for="k in kode" :key="k">
+                                                    <td class="px-4 py-3 text-center font-medium text-gray-800" x-text="fmt(row.nilai[k])"></td>
+                                                </template>
                                             </tr>
                                         </template>
                                         <tr x-show="filtered('normalisasi').length === 0">
-                                            <td colspan="5" class="px-4 py-6 text-center text-gray-400">Data tidak ditemukan.</td>
+                                            <td colspan="{{ count($kriteria) + 1 }}" class="px-4 py-6 text-center text-gray-400">Data tidak ditemukan.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -245,10 +258,9 @@
                                         <tr>
                                             <th class="px-4 py-3 text-center w-20">Peringkat</th>
                                             <th class="px-4 py-3">Nama Subdomain</th>
-                                            <th class="px-3 py-3 text-center bg-slate-50/50">C1 ({{ $currentCriteria->c1 }}%)</th>
-                                            <th class="px-3 py-3 text-center bg-slate-50/50">C2 ({{ $currentCriteria->c2 }}%)</th>
-                                            <th class="px-3 py-3 text-center bg-slate-50/50">C3 ({{ $currentCriteria->c3 }}%)</th>
-                                            <th class="px-3 py-3 text-center bg-slate-50/50">C4 ({{ $currentCriteria->c4 }}%)</th>
+                                            @foreach($kriteria as $k)
+                                                <th class="px-3 py-3 text-center bg-slate-50/50">{{ $k['kode'] }} ({{ $k['bobot'] }}%)</th>
+                                            @endforeach
                                             <th class="px-6 py-3 text-center w-40 font-bold bg-green-50/50 text-green-800">Total Skor ($V_i$)</th>
                                         </tr>
                                     </thead>
@@ -270,10 +282,9 @@
                                                     </template>
                                                 </td>
                                                 <td class="px-4 py-3 text-gray-900 font-medium" x-text="row.subdomain"></td>
-                                                <td class="px-3 py-3 text-center text-xs text-gray-500 bg-slate-50/20" x-text="fmt(row.v1)"></td>
-                                                <td class="px-3 py-3 text-center text-xs text-gray-500 bg-slate-50/20" x-text="fmt(row.v2)"></td>
-                                                <td class="px-3 py-3 text-center text-xs text-gray-500 bg-slate-50/20" x-text="fmt(row.v3)"></td>
-                                                <td class="px-3 py-3 text-center text-xs text-gray-500 bg-slate-50/20" x-text="fmt(row.v4)"></td>
+                                                <template x-for="k in kode" :key="k">
+                                                    <td class="px-3 py-3 text-center text-xs text-gray-500 bg-slate-50/20" x-text="fmt(row.nilai[k])"></td>
+                                                </template>
                                                 <td class="px-6 py-3 text-center bg-green-50/20">
                                                     <span :class="row.rank === 1 ? 'bg-green-200 text-green-900' : 'bg-green-100 text-green-800'"
                                                         class="inline-block font-bold px-3 py-1 rounded-full text-xs" x-text="fmt(row.skor)"></span>
@@ -281,7 +292,7 @@
                                             </tr>
                                         </template>
                                         <tr x-show="filtered('ranking').length === 0">
-                                            <td colspan="7" class="px-4 py-6 text-center text-gray-400">Data tidak ditemukan.</td>
+                                            <td colspan="{{ count($kriteria) + 3 }}" class="px-4 py-6 text-center text-gray-400">Data tidak ditemukan.</td>
                                         </tr>
                                     </tbody>
                                 </table>

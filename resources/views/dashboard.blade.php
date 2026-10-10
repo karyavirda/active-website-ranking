@@ -57,42 +57,23 @@
                     <h3 class="font-bold text-lg text-gray-800 mb-4 flex items-center gap-2">
                         ⚙️ Bobot Parameter SAW
                     </h3>
-                    @if($currentCriteria)
+                    @if(count($kriteria))
                         <div class="space-y-4">
-                            <div class="flex justify-between items-center border-b pb-2">
-                                <div>
-                                    <span class="block text-gray-800 font-semibold text-sm">Konsistensi (C1)</span>
-                                    <span class="text-xs text-gray-400">Rata-rata post/minggu</span>
+                            @foreach($kriteria as $k)
+                                <div class="flex justify-between items-center border-b pb-2">
+                                    <div>
+                                        <span class="block text-gray-800 font-semibold text-sm">{{ $k['nama'] }} ({{ $k['kode'] }})</span>
+                                        <span class="text-xs text-gray-400">{{ $k['satuan'] }} · {{ ucfirst($k['tipe']) }}</span>
+                                    </div>
+                                    <span class="font-bold text-blue-600 text-lg">{{ $k['bobot'] }}%</span>
                                 </div>
-                                <span class="font-bold text-blue-600 text-lg">{{ $currentCriteria->c1 }}%</span>
-                            </div>
-
-                            <div class="flex justify-between items-center border-b pb-2">
-                                <div>
-                                    <span class="block text-gray-800 font-semibold text-sm">Volume Konten (C2)</span>
-                                    <span class="text-xs text-gray-400">Total akumulasi item</span>
-                                </div>
-                                <span class="font-bold text-blue-600 text-lg">{{ $currentCriteria->c2 }}%</span>
-                            </div>
-
-                            <div class="flex justify-between items-center border-b pb-2">
-                                <div>
-                                    <span class="block text-gray-800 font-semibold text-sm">Freshness (C3)</span>
-                                    <span class="text-xs text-gray-400">Skor kesegaran data (0 - 90)</span>
-                                </div>
-                                <span class="font-bold text-blue-600 text-lg">{{ $currentCriteria->c3 }}%</span>
-                            </div>
-
-                            <div class="flex justify-between items-center border-b pb-2">
-                                <div>
-                                    <span class="block text-gray-800 font-semibold text-sm">Variasi Konten (C4)</span>
-                                    <span class="text-xs text-gray-400">Keberagaman jenis konten</span>
-                                </div>
-                                <span class="font-bold text-blue-600 text-lg">{{ $currentCriteria->c4 }}%</span>
-                            </div>
+                            @endforeach
                         </div>
+                        @if($totalBobot != 100)
+                            <p class="mt-3 text-xs text-red-500 italic">Total bobot saat ini {{ $totalBobot }}%, seharusnya 100%.</p>
+                        @endif
                     @else
-                        <p class="text-sm text-red-500 italic">Bobot kriteria belum diatur di sistem.</p>
+                        <p class="text-sm text-red-500 italic">Kriteria belum diatur di sistem.</p>
                     @endif
                 </div>
 
